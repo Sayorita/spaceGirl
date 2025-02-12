@@ -1,0 +1,23 @@
+<h1>Seu Carrinho</h1>
+
+<% if @itens_carrinho.empty? %>
+  <p>Seu carrinho está vazio.</p>
+<% else %>
+  <div>
+    <% @itens_carrinho.each do |item| %>
+      <div>
+        <h2><%= item.produto.nome %></h2>
+        <p><%= item.produto.descricao %></p>
+        <p>Quantidade: <%= item.quantidade %></p>
+        <p>Preço Unitário: R$ <%= number_to_currency(item.produto.preco) %></p>
+        <p>Total: R$ <%= number_to_currency(item.quantidade * item.produto.preco) %></p>
+      </div>
+    <% end %>
+  </div>
+
+  <h2>Total do Carrinho: R$ <%= number_to_currency(@carrinho.total) %></h2>
+<% end %>
+
+<%= link_to 'Continuar Comprando', produtos_path %>
+
+<%= button_to 'Finalizar Compra', pagar_path, class: 'btn btn-primary' %>

@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  carrinho_id: MyString
+  produto_id: MyString
+  quantidade: 1
+
+two:
+  carrinho_id: MyString
+  produto_id: MyString
+  quantidade: 1

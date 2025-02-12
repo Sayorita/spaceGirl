@@ -1,0 +1,65 @@
+<h1>Finalizar Compra</h1>
+
+<% if @itens_carrinho.empty? %>
+  <p>Seu carrinho está vazio.</p>
+<% else %>
+  <div>
+    <h2>Itens do Carrinho</h2>
+    <% @itens_carrinho.each do |item| %>
+      <div>
+        <h3><%= item.produto.nome %></h3>
+        <p>Quantidade: <%= item.quantidade %></p>
+        <p>Preço Unitário: R$ <%= number_to_currency(item.produto.preco) %></p>
+        <p>Total: R$ <%= number_to_currency(item.quantidade * item.produto.preco) %></p>
+      </div>
+    <% end %>
+  </div>
+
+  <h2>Total do Pedido: R$ <%= number_to_currency(@total) %></h2>
+
+  <!-- Card Payment Brick do Mercado Pago -->
+  <div id="cardPaymentBrick_container"></div>
+
+  <script src="https://sdk.mercadopago.com/js/v2"></script>
+  <script>
+    const mp = new MercadoPago('<%= ENV["MERCADO_PAGO_PUBLIC_KEY"] %>', {
+      locale: 'pt-BR'
+    });
+
+    mp.bricks().create("cardPayment", "cardPaymentBrick_container", {
+      initialization: {
+        amount: <%= @total %>, // Valor total do carrinho
+      },
+      callbacks: {
+        onReady: () => {
+          console.log('Card Payment Brick está pronto.');
+        },
+        onSubmit: (formData) => {
+          return new Promise((resolve, reject) => {
+            fetch('/pagamento/<%= @carrinho.id %>', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+              },
+              body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                resolve();
+              } else {
+                reject();
+              }
+            });
+          });
+        },
+        onError: (error) => {
+          console.error('Erro no Card Payment Brick:', error);
+        }
+      }
+    });
+  </script>
+<% end %>
+
+<%= link_to 'Voltar ao Carrinho', carrinho_path %>

@@ -1,0 +1,14 @@
+<h1>Produtos</h1>
+
+<div>
+  <% @produtos.each do |produto| %>
+    <div>
+      <h2><%= produto.nome %></h2>
+      <p><%= produto.descricao %></p>
+      <p>R$ <%= number_to_currency(produto.preco) %></p>
+      <%= button_to 'Adicionar ao Carrinho', adicionar_produto_path(produto), method: :post %>
+    </div>
+  <% end %>
+</div>
+
+<%= paginate @produtos %>

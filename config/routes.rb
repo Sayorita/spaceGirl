@@ -1,17 +1,21 @@
 Rails.application.routes.draw do
-  resources :comments
-  resources :posts
-  get "example/test"
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
+  # Rotas para autenticação de usuários
+  devise_for :users
 
-  # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
-  # Can be used by load balancers and uptime monitors to verify that the app is live.
-  get "up" => "rails/health#show", as: :rails_health_check
+    # Rotas para produtos
+  resources :produtos, only: [:index]
 
-  # Render dynamic PWA files from app/views/pwa/*
-  get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
-  get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
+  # Rota para adicionar produtos ao carrinho
+  post '/adicionar_ao_carrinho/:id', to: 'carrinhos#adicionar_produto', as: 'adicionar_produto'
 
-  # Defines the root path route ("/")
-  # root "posts#index"
+  get '/carrinho', to: 'carrinhos#mostrar', as: 'carrinho' # Nova rota para a página do carrinho
+
+ post '/pagamento/:id', to: 'pagamentos#create', as: 'pagamento'
+get '/pagamento/finalizar/sucesso', to: 'pagamentos#sucesso', as: 'pagamento_sucesso'
+get '/pagamento/finalizar/falha', to: 'pagamentos#falha', as: 'pagamento_falha'
+
+ get'/carrinho/finalizar', to: 'pagamentos#pagar', as: 'pagar'
+
+  # Define a rota raiz ("/") para a página de produtos
+  root "produtos#index"
 end
