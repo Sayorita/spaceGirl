@@ -13,7 +13,7 @@ class CarrinhosController < ApplicationController
 
   def mostrar
     @carrinho = current_user.carrinho || current_user.create_carrinho
-    @itens_carrinho = @carrinho.item_carrinho.includes(:produto) # Carrega os itens com os produtos associados
+    @itens_carrinho = @carrinho.item_carrinho.includes(:produto) 
   end
 
 end

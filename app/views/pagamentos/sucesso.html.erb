@@ -1,3 +1,14 @@
-<h1>Pagamento Realizado com Sucesso!</h1>
-<p>Obrigado por sua compra. Seu pedido foi processado com sucesso.</p>
-<%= link_to 'Voltar à Loja', produtos_path, class: 'btn btn-primary' %>
+<h1>Pagamento Aprovado!</h1>
+<p>Pedido ID: <%= @pedido.id %></p>
+<p>Total Pago: R$ <%= @pedido.total %></p>
+<p>Método de Pagamento: <%= @pedido.metodo_pagamento %></p>
+<p>Status: <%= @pedido.status %></p>
+
+<h2>Itens do Pedido:</h2>
+<ul>
+  <% @pedido.item_pedido.each do |item| %>
+    <li><%= item.quantidade %>x <%= item.produto_nome %> - R$ <%= item.preco_unitario %></li>
+  <% end %>
+</ul>
+
+<a href="/">Voltar para a página inicial</a>

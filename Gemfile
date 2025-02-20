@@ -16,12 +16,17 @@ gem "stimulus-rails"
 gem "jbuilder"
 # Use Redis adapter to run Action Cable in production
 # gem "redis", ">= 4.0.1"
+gem 'turbolinks', '~> 5'
 
 gem 'mongoid', '~> 9.0', '>= 9.0.2'
 gem 'devise'
 gem 'kaminari'
 gem 'kaminari-mongoid'
 gem 'mercadopago-sdk', '~> 2.3'
+
+# gem 'bootstrap', '~> 5.3'
+# gem 'sassc-rails' # Adicionado para processamento de Sass
+# gem 'jquery-rails'
 
 # Use Kredis to get higher-level data types in Redis [https://github.com/rails/kredis]
 # gem "kredis"
@@ -31,7 +36,7 @@ gem 'dotenv-rails', groups: [:development, :test]
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 gem "bcrypt", "~> 3.1.7"
 
-gem 'activerecord', '~> 7.2.2'
+# gem 'activerecord', '~> 7.2.2'
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ windows jruby ]
@@ -53,6 +58,11 @@ end
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
+  gem "pry"
+  gem "pry-doc"
+  gem "pry-nav"
+  gem "pry-rails"
+  gem "pry-theme"
 end
 
 group :test do

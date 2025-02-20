@@ -1,65 +1,84 @@
 <h1>Finalizar Compra</h1>
 
-<% if @itens_carrinho.empty? %>
-  <p>Seu carrinho está vazio.</p>
-<% else %>
-  <div>
-    <h2>Itens do Carrinho</h2>
-    <% @itens_carrinho.each do |item| %>
-      <div>
-        <h3><%= item.produto.nome %></h3>
-        <p>Quantidade: <%= item.quantidade %></p>
-        <p>Preço Unitário: R$ <%= number_to_currency(item.produto.preco) %></p>
-        <p>Total: R$ <%= number_to_currency(item.quantidade * item.produto.preco) %></p>
-      </div>
-    <% end %>
-  </div>
+<div id="paymentBrick_container"></div>
 
-  <h2>Total do Pedido: R$ <%= number_to_currency(@total) %></h2>
+<script>
+  const mp = new MercadoPago('<%= ENV["MERCADO_PAGO_PUBLIC_KEY"] %>', {
+    locale: 'pt-BR'
+  });
 
-  <!-- Card Payment Brick do Mercado Pago -->
-  <div id="cardPaymentBrick_container"></div>
+  const bricksBuilder = mp.bricks();
 
-  <script src="https://sdk.mercadopago.com/js/v2"></script>
-  <script>
-    const mp = new MercadoPago('<%= ENV["MERCADO_PAGO_PUBLIC_KEY"] %>', {
-      locale: 'pt-BR'
-    });
-
-    mp.bricks().create("cardPayment", "cardPaymentBrick_container", {
+  const renderPaymentBrick = async (bricksBuilder) => {
+    const settings = {
       initialization: {
-        amount: <%= @total %>, // Valor total do carrinho
+        amount: <%= @total.to_f %>,
+          // payer: {
+          //   firstName: "",
+          //   lastName: "",
+          //   email: "",
+          // },
+        },
+        customization: {
+          visual: {
+            style: {
+              theme: "default",
+            },
+          },
+          paymentMethods: {
+            creditCard: "all",
+										atm: "all",
+            maxInstallments: 12
+          },
+        },
+        callbacks: {
+          onReady: () => {
+            /*
+             Callback chamado quando o Brick está pronto.
+             Aqui, você pode ocultar seu site, por exemplo.
+            */
+          },
+onSubmit: ({ selectedPaymentMethod, formData }) => {
+  return new Promise((resolve, reject) => {
+    fetch("/pagamento", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
       },
-      callbacks: {
-        onReady: () => {
-          console.log('Card Payment Brick está pronto.');
-        },
-        onSubmit: (formData) => {
-          return new Promise((resolve, reject) => {
-            fetch('/pagamento/<%= @carrinho.id %>', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
-              },
-              body: JSON.stringify(formData)
-            })
-            .then(response => response.json())
-            .then(data => {
-              if (data.success) {
-                resolve();
-              } else {
-                reject();
-              }
-            });
-          });
-        },
-        onError: (error) => {
-          console.error('Erro no Card Payment Brick:', error);
-        }
-      }
-    });
-  </script>
-<% end %>
+      body: JSON.stringify(formData),
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        console.log("Resposta completa do pagamento:", response);
 
-<%= link_to 'Voltar ao Carrinho', carrinho_path %>
+        if (response.success) {
+          window.location.href = response.redirect_url; // Redireciona para a página de sucesso
+        } else {
+          alert(`Pagamento não aprovado: ${response.message}`);
+          console.error("Erro no pagamento:", response.raw_response);
+        }
+
+        resolve();
+      })
+      .catch((error) => {
+        console.error("Erro ao processar pagamento:", error);
+        alert("Erro ao processar pagamento.");
+        reject();
+      });
+  });
+},
+
+          onError: (error) => {
+            // callback chamado para todos os casos de erro do Brick
+            console.error(error);
+          },
+        },
+      };
+      window.paymentBrickController = await bricksBuilder.create(
+        "payment",
+        "paymentBrick_container",
+        settings
+      );
+    };
+    renderPaymentBrick(bricksBuilder);
+  </script>

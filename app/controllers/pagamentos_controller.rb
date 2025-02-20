@@ -1,24 +1,22 @@
 class PagamentosController < ApplicationController
   before_action :authenticate_user!
+  skip_before_action :verify_authenticity_token
 
-    # Exibir a página de pagamento
+
   def pagar
     @carrinho = current_user.carrinho || current_user.create_carrinho
     @itens_carrinho = @carrinho.item_carrinho.includes(:produto)
-    @total = @carrinho.total
+    @total = @carrinho.total.to_f
 
-    # Certifique-se de que o carrinho não está vazio
-    if @itens_carrinho.empty?
+    if @itens_carrinho.empty? || @total <= 0
       redirect_to carrinho_path, alert: 'Seu carrinho está vazio.'
     end
   end
 
-  def create
-    # Configurar o SDK do Mercado Pago
+   def create
     require 'mercadopago'
     sdk = Mercadopago::SDK.new(ENV['MERCADO_PAGO_ACCESS_TOKEN'])
-
-    # Criar os dados do pagamento
+    # binding.pry
     payment_data = {
       transaction_amount: params[:transaction_amount].to_f,
       token: params[:token],
@@ -26,30 +24,48 @@ class PagamentosController < ApplicationController
       installments: params[:installments].to_i,
       payment_method_id: params[:payment_method_id],
       payer: {
-        email: params[:payer_email]
+        email: params[:payer][:email],
+        identification: {
+          type: params[:payer][:identification][:type],
+          number: params[:payer][:identification][:number]
+        },
+        first_name: params[:cardholderName]
       }
     }
 
-    # Criar o pagamento usando o SDK
     payment_response = sdk.payment.create(payment_data)
+    payment = payment_response[:response] || {}
 
-   if payment_response[:response][:status] == 'approved'
-      # Limpar o carrinho após o pagamento
-      carrinho = current_user.carrinho
-      carrinho.item_carrinho.destroy_all
+    if payment["status"] == "approved"
+      # Limpar o carrinho do usuário se houver itens
 
-      redirect_to pagamento_sucesso_path, notice: 'Pagamento aprovado!'
+      pedido = Pedido.create!(
+      user: current_user,
+      total: payment["transaction_amount"],
+      status: "aprovado",
+      metodo_pagamento: payment["payment_method_id"],
+      payment_id: payment["id"]
+    )
+
+      current_user.carrinho.item_carrinho.each do |item|
+      pedido.item_pedido.create!(
+        produto_nome: item.produto.nome,
+        quantidade: item.quantidade,
+        preco_unitario: item.produto.preco
+      )
+    end
+
+    # Limpar o carrinho
+    current_user.carrinho.item_carrinho.destroy_all
+
+      # Redirecionar para a página de sucesso
+      render json: { success: true, redirect_url: sucesso_path(pedido) }
     else
-      redirect_to pagamento_falha_path, alert: 'Falha no pagamento.'
+      render json: { success: false, message: payment["status_detail"], raw_response: payment }, status: :unprocessable_entity
     end
   end
 
-  def sucesso
-    render 'pagamentos/sucesso'
-  end
-
-  def falha
-    render 'pagamentos/falha'
-  end
-
+def sucesso
+  @pedido = Pedido.find(params[:id])
+end
 end
