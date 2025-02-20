@@ -8,7 +8,4 @@ class ItemCarrinho
   field :produto_id, type: BSON::ObjectId
   field :quantidade, type: Integer, default: 1
 
-  def produto
-    Produto.find_by(id: produto_id)
-  end
 end

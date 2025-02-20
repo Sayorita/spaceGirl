@@ -17,6 +17,7 @@ class User
   field :remember_created_at, type: Time
 
   has_one :carrinho, dependent: :destroy
+  has_many :pedido
 
   ## Trackable
   # field :sign_in_count,      type: Integer, default: 0

@@ -3,21 +3,42 @@
 <% if @itens_carrinho.empty? %>
   <p>Seu carrinho está vazio.</p>
 <% else %>
-  <div>
-    <% @itens_carrinho.each do |item| %>
-      <div>
-        <h2><%= item.produto.nome %></h2>
-        <p><%= item.produto.descricao %></p>
-        <p>Quantidade: <%= item.quantidade %></p>
-        <p>Preço Unitário: R$ <%= number_to_currency(item.produto.preco) %></p>
-        <p>Total: R$ <%= number_to_currency(item.quantidade * item.produto.preco) %></p>
-      </div>
-    <% end %>
-  </div>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Produto</th>
+        <th>Descrição</th>
+        <th>Quantidade</th>
+        <th>Preço Unitário</th>
+        <th>Total</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @itens_carrinho.each do |item| %>
+        <tr>
+          <td><%= item.produto.nome %></td>
+          <td><%= item.produto.descricao %></td>
+          <td>
+            <%= form_with url: atualizar_quantidade_path(item), method: :patch, local: true, class: "d-flex align-items-center" do |f| %>
+              <%= f.number_field :quantidade, value: item.quantidade, min: 1, class: "form-control me-2", style: "width: 60px;" %>
+              <%= f.submit "Atualizar", class: "btn btn-sm btn-primary" %>
+            <% end %>
+          </td>
+          <td>R$ <%= number_to_currency(item.produto.preco) %></td>
+          <td>R$ <%= number_to_currency(item.quantidade * item.produto.preco) %></td>
+          <td>
+            <%= button_to "Remover", remover_item_path(item), method: :delete, class: "btn btn-sm btn-danger" %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
 
   <h2>Total do Carrinho: R$ <%= number_to_currency(@carrinho.total) %></h2>
+
+  <div class="d-flex justify-content-between">
+    <%= link_to 'Continuar Comprando', produtos_path, class: "btn btn-secondary" %>
+    <%= button_to 'Finalizar Compra', pagar_path, method: :get, class: "btn btn-success" %>
+  </div>
 <% end %>
-
-<%= link_to 'Continuar Comprando', produtos_path %>
-
-<%= button_to 'Finalizar Compra', pagar_path, method: :get %>

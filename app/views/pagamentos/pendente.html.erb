@@ -1,15 +1,15 @@
 <div class="container text-center mt-5">
   <div class="card shadow-lg p-4">
     <div class="card-body">
-      <i class="fa-solid fa-circle-check text-success display-4"></i>
-      <h1 class="text-success mt-3">Pagamento Aprovado!</h1>
-      <p class="lead">Seu pedido foi processado com sucesso.</p>
+      <i class="fa-solid fa-hourglass-half text-warning display-4"></i>
+      <h1 class="text-warning mt-3">Pagamento Pendente</h1>
+      <p class="lead">Estamos aguardando a confirmação do pagamento.</p>
 
       <div class="alert alert-light border mt-4">
         <p><strong>Pedido ID:</strong> <%= @pedido.id %></p>
-        <p><strong>Total Pago:</strong> R$ <%= @pedido.total %></p>
+        <p><strong>Total:</strong> R$ <%= @pedido.total %></p>
         <p><strong>Método de Pagamento:</strong> <%= @pedido.metodo_pagamento %></p>
-        <p><strong>Status:</strong> <span class="badge bg-success"><%= @pedido.status %></span></p>
+        <p><strong>Status:</strong> <span class="badge bg-warning text-dark"><%= @pedido.status %></span></p>
       </div>
 
       <h2 class="mt-4">Itens do Pedido</h2>
@@ -22,7 +22,7 @@
         <% end %>
       </ul>
 
-      <a href="/" class="btn btn-primary mt-4"><i class="fa-solid fa-house"></i> Voltar para a página inicial</a>
+      <a href="/" class="btn btn-secondary mt-4"><i class="fa-solid fa-house"></i> Voltar para a página inicial</a>
     </div>
   </div>
 </div>

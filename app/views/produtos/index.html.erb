@@ -1,14 +1,24 @@
-<h1>Produtos</h1>
+<h1 class="my-4">Produtos</h1>
 
-<div>
-  <% @produtos.each do |produto| %>
-    <div>
-      <h2><%= produto.nome %></h2>
-      <p><%= produto.descricao %></p>
-      <p>R$ <%= number_to_currency(produto.preco) %></p>
-      <%= button_to 'Adicionar ao Carrinho', adicionar_produto_path(produto), method: :post %>
-    </div>
-  <% end %>
+<div class="container">
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+    <% @produtos.each do |produto| %>
+      <div class="col">
+        <div class="card h-100">
+          <img src="<%= produto.imagem %>" class="card-img-top" alt="<%= produto.nome %>">
+          <div class="card-body">
+            <h5 class="card-title"><%= produto.nome %></h5>
+            <p class="card-text"><%= produto.descricao %></p>
+            <p class="fw-bold">R$ <%= number_to_currency(produto.preco, unit: "", separator: ",", delimiter: ".") %></p>
+            <%= button_to 'Adicionar ao Carrinho', adicionar_produto_path(produto), method: :post, class: "btn btn-primary w-100" %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
 </div>
 
-<%= paginate @produtos %>
+<!-- Paginação -->
+<div class="d-flex justify-content-center mt-4">
+  <%= paginate @produtos %>
+</div>
